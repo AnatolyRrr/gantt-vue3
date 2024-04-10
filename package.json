@@ -3,9 +3,19 @@
   "version": "0.0.1",
   "license": "MIT",
   "homepage": "https://anatolyrrr.github.io/gantt-vue3/",
-  "author": "AnatolyRrr",
-  "keywords": ["vue", "vue3", "vue 3", "gantt", "gant", "diagram", "tasks"],
-  "files": ["dist"],
+  "author": "anatolyrrr",
+  "keywords": [
+    "vue",
+    "vue3",
+    "vue 3",
+    "gantt",
+    "gant",
+    "diagram",
+    "tasks"
+  ],
+  "files": [
+    "dist"
+  ],
   "main": "./dist/vue-gantt-library.umd.js",
   "module": "./dist/vue-gantt-library.es.js",
   "types": "./dist/types/index.d.ts",
@@ -30,7 +40,6 @@
   },
   "dependencies": {
     "@vueuse/core": "^10.9.0",
-    "pinia": "^2.1.7",
     "rollup-plugin-friendly-type-imports": "^1.0.3",
     "sass": "^1.74.1",
     "vue": "^3.4.21"
