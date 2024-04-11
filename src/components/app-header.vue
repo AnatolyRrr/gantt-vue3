@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { defineProps, defineEmits, computed } from 'vue';
+import type { GanttScale, GanttView } from '@/library/vue-gantt/vue-gantt.types';
 
 const props = defineProps<{
-  view: 'tasks' | 'users';
+  view: GanttView;
+  scale: GanttScale;
   showLinks: boolean;
   showDates: boolean;
   withoutWeekends: boolean;
@@ -19,11 +21,16 @@ const emit = defineEmits([
   'update:showNet',
   'update:showClosed',
   'update:todayTrigger',
+  'update:scale',
 ]);
 
 const viewValue = computed({
   get: () => props.view,
   set: (val) => emit('update:view', val),
+});
+const scaleValue = computed({
+  get: () => props.scale,
+  set: (val) => emit('update:scale', val),
 });
 const showLinksValue = computed({
   get: () => props.showLinks,
@@ -62,6 +69,16 @@ const todayTriggerValue = computed({
       >
         Go today
       </button>
+
+      <div class="line" />
+
+      <label>
+        <select v-model="scaleValue">
+          <option value="week/day">Week/day</option>
+          <option value="year/month">Year/Month</option>
+          <option value="year">Year</option>
+        </select>
+      </label>
 
       <div class="line" />
 
@@ -124,10 +141,11 @@ header {
 .filters {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
+  gap: 12px;
 }
 
 .line {
+  flex: 1;
   height: 24px;
   width: 1px;
   background-color: #000000;

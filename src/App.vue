@@ -3,8 +3,10 @@ import { ref } from 'vue';
 
 import AppHeader from './components/app-header.vue';
 import VueGantt from './library/vue-gantt/vue-gantt.vue';
+import type { GanttScale, GanttView } from './library/vue-gantt/vue-gantt.types';
 
-const view = ref<'tasks' | 'users'>('tasks');
+const view = ref<GanttView>('tasks');
+const scale = ref<GanttScale>('week/day');
 const showLinks = ref(true);
 const showDates = ref(true);
 const withoutWeekends = ref(false);
@@ -17,6 +19,7 @@ const todayTrigger = ref(false);
   <div>
     <AppHeader
       v-model:view="view"
+      v-model:scale="scale"
       v-model:show-links="showLinks"
       v-model:show-dates="showDates"
       v-model:without-weekends="withoutWeekends"
@@ -26,7 +29,10 @@ const todayTrigger = ref(false);
     />
 
     <VueGantt
+      :tasks="[]"
+      :statuses="[]"
       :view="view"
+      :scale="scale"
       :show-links="showLinks"
       :show-dates="showDates"
       :without-weekends="withoutWeekends"
