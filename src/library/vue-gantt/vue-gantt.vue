@@ -1,13 +1,17 @@
 <script setup lang="ts">
-import { defineProps,
+import {
+  withDefaults,
+  defineProps,
   defineEmits,
   ref,
-  computed,
   reactive,
-  withDefaults,
+  computed,
+  watch,
 } from 'vue';
 import { DateTime } from 'luxon';
-import type { GanttProps } from './vue-gantt.types';
+import { useFormatTasks } from '@/composables/format-tasks';
+import { getDateInterval } from '@/utils/date';
+import type { GanttProps, GanttTask } from './vue-gantt.types';
 
 const props = withDefaults(defineProps<GanttProps>(), {
   view: 'tasks',
@@ -27,16 +31,26 @@ const emit = defineEmits([
   'change-status',
 ]);
 
+const {
+  openedTasks,
+  openedTaskIds,
+  hovers,
+} = useFormatTasks(
+  computed(() => props.tasks),
+  computed(() => props.view),
+);
+
 const currentDateTime = DateTime.now();
 
+const endDate = ref(DateTime.now().plus({ year: 1 }));
 const smooth = ref(true);
 const isDrawing = ref(false);
 const sidebarRef = ref<null | HTMLElement>(null);
 const supportAreaRef = ref<null | HTMLElement>(null);
-const endDate = ref(DateTime.now().plus({ year: 1 }));
 const todayLineCoord = ref<number | null>(null);
 const scrollXIntervalId = ref();
 const scrollYIntervalId = ref();
+const selectedTaskIds = ref<string[]>([]);
 
 // const linkCoords = reactive({
 //   start: null as GanttTaskCoords | null,
@@ -126,6 +140,60 @@ const sizes = computed(() => {
 });
 
 const minCellWidth = computed(() => props.options?.cellWidth ?? 28);
+
+const setTodayLinePosition = (dates: string[], cellIndex: number): void => {
+  if (dates.length === 2) {
+    const today = currentDateTime.toISODate();
+    const dateArray = getDateInterval(dates[0], dates[1]);
+    const index = dateArray.findIndex((date) => date === today);
+
+    if (index !== -1) {
+      const left = (sizes.value.cellWidth / 100) * (index / (dateArray.length - 1) * 100);
+      if (todayLineCoord.value === null) {
+        todayLineCoord.value = left + (cellIndex * sizes.value.cellWidth);
+      }
+    }
+  }
+  if (todayLineCoord.value === null) {
+    todayLineCoord.value = cellIndex * sizes.value.cellWidth;
+  }
+};
+
+const onTaskSelect = (id: string): void => {
+  const selectedTasksSet = new Set(selectedTaskIds.value);
+  if (selectedTasksSet.has(id)) {
+    selectedTasksSet.delete(id);
+  } else {
+    selectedTasksSet.add(id);
+  }
+  selectedTaskIds.value = [...selectedTasksSet];
+  emit('select-task', selectedTaskIds.value)
+};
+
+const onOpenSidebarTask = (id: string): void => {
+  if (openedTaskIds.value.includes(id)) {
+    openedTaskIds.value = openedTaskIds.value.filter(id => id !== id);
+  } else {
+    openedTaskIds.value.push(id);
+  }
+};
+
+const syncSelectedTasks = (tasks: GanttTask[]): void => {
+  const selectedTasksSet = new Set(selectedTaskIds.value);
+  selectedTaskIds.value.forEach((id) => {
+    if (!tasks.some((task) => task.id === id)) {
+      selectedTasksSet.delete(id);
+    }
+  });
+  selectedTaskIds.value = [...selectedTasksSet];
+  emit('select-task', selectedTaskIds.value);
+};
+
+watch(() => props.tasks, (newVal) => {
+  todayLineCoord.value = null;
+  renderKeys.task += 1;
+  syncSelectedTasks(newVal);
+}, { deep: true });
 </script>
 
 <template>

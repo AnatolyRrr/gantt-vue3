@@ -1,6 +1,12 @@
 export type GanttView = 'tasks' | 'users';
 export type GanttScale = 'week/day' | 'year/month' | 'year';
+export interface GanttExecutor {
+  id: string
+  name: string
+  [key: string]: any
+}
 export interface GanttTaskStatus {
+  id: string
   name: string
   color: string
   [key: string]: any
@@ -15,7 +21,15 @@ export interface GanttTask {
   startAfterIds: string[]
   subtaskIds: string[]
   parentTask: GanttTask | null
+  executors: GanttExecutor[]
+  subtasks?: GanttTask[]
+  isUser?: false
   [key: string]: any
+}
+export interface SidebarUser extends GanttExecutor {
+  userId: string
+  isUser: true
+  subtasks: GanttTask[]
 }
 export interface GanttOptions {
   cellWidth?: number;
@@ -41,4 +55,18 @@ export interface GanttProps {
   creationDate?: string; // ISO format
   rerenderTrigger?: boolean;
   options?: GanttOptions;
+}
+export interface GanttHover {
+  id: string;
+  openedSubtaskIds: string[];
+  startRowIndex: number;
+  endRowIndex: number;
+  startDate: string;
+  endDate: string;
+  color: string;
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+  index: number;
 }
